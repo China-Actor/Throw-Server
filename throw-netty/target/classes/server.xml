@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="messageFactory" class="com.playmore.net.netty.codec.server.NettyMessageFactory"
+		factory-method="getDefault" />
+
+	<bean id="identityMaker" class="com.playmore.net.session.DefaultSessionIdentityMaker"
+		factory-method="getDefault" />
+
+	<bean id="sessionFactory" class="com.playmore.net.netty.session.NettyKeepAliveSessionFactory"
+		factory-method="getDefault">
+		<property name="identityMaker" ref="identityMaker" />
+	</bean>
+
+	<bean id="sessionManager" class="com.playmore.net.netty.session.NettyKeepAliveSessionManager">
+		<constructor-arg index="0" ref="sessionFactory" />
+	</bean>
+
+	<bean id="netServiceProvider" class="com.playmore.net.util.NetServiceProvider"
+		factory-method="getDefault">
+		<property name="sessionManager" ref="sessionManager" />
+		<property name="messageFactory" ref="messageFactory" />
+		<property name="messageHandler" ref="handlerContorller" />
+	</bean>
+
+
+	<bean id="nettyServer" class="com.playmore.net.netty.context.NettyServer"
+		factory-method="getDefault" init-method="start">
+		<property name="port" value="${net.server.port}" />
+		<property name="hostAddress" value="${net.server.host}" />
+		<property name="version" value="${server.version}" />
+	</bean>
+	
+	<!-- 服务器信息定义 -->
+	<bean id="listenAddress" class="java.net.InetSocketAddress">
+		<constructor-arg index="0" value="${net.server.host}"/>
+		<constructor-arg index="1" value="${net.server.port}"/>
+	</bean>
+	
+</beans>
